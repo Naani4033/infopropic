@@ -121,6 +121,18 @@
         .rotate-180 {
             transform: rotate(180deg);
         }
+
+        /* Mobile services dropdown animation */
+        #mobile-services-dropdown {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 300ms ease, opacity 200ms ease;
+            opacity: 0;
+        }
+
+        #mobile-services-dropdown.open {
+            opacity: 1;
+        }
     </style>
 </head> 
 
@@ -263,7 +275,7 @@
                     <a href="#contact"
                         class="block text-white/80 hover:text-white transition-colors w-full text-left py-2">Contact</a>
 
-                    <div class="border-t border-white/20 pt-4 py-8">
+                    <div class="border-t border-white/20 pt-4 ">
                         <button id="mobile-services-btn"
                             class="flex items-center justify-between w-full text-white/80 hover:text-white transition-colors py-2">
                             <span>Services</span>
@@ -373,7 +385,7 @@
                     <div>
                         <h2
                             class="text-5xl font-bold mb-8 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-                            About PropicInfo  
+                            About Propic Studio
                         </h2>
                         <div class="space-y-6 text-white/80 text-lg">
                             <p>
@@ -1569,8 +1581,26 @@
         // Guard mobileMenuBtn in case element is missing in some views
         if (mobileMenuBtn) {
             mobileMenuBtn.addEventListener('click', function () {
-                mobileMenu.classList.toggle('max-h-0');
-                mobileMenu.classList.toggle('max-h-screen');
+                // If opening, set the inline maxHeight so the menu fills available viewport (below header)
+                const isOpen = mobileMenu.classList.contains('max-h-screen');
+
+                if (isOpen) {
+                    // Close menu
+                    mobileMenu.classList.remove('max-h-screen');
+                    mobileMenu.classList.add('max-h-0');
+                    // remove inline maxHeight so it reverts cleanly
+                    mobileMenu.style.maxHeight = '';
+                } else {
+                    // Open menu: compute available height below header
+                    const headerEl = document.getElementById('header');
+                    const headerHeight = headerEl ? headerEl.getBoundingClientRect().height : 0;
+                    const available = window.innerHeight - headerHeight;
+                    // ensure container can scroll within that space
+                    mobileMenu.style.maxHeight = available + 'px';
+                    mobileMenu.classList.remove('max-h-0');
+                    mobileMenu.classList.add('max-h-screen');
+                }
+
                 menuIcon.classList.toggle('hidden');
                 closeIcon.classList.toggle('hidden');
                 overlay.classList.toggle('hidden');
@@ -1585,6 +1615,7 @@
                 link.addEventListener('click', function () {
                     mobileMenu.classList.remove('max-h-screen');
                     mobileMenu.classList.add('max-h-0');
+                    mobileMenu.style.maxHeight = '';
                     menuIcon.classList.remove('hidden');
                     closeIcon.classList.add('hidden');
                     overlay.classList.add('hidden');
@@ -1597,6 +1628,7 @@
             overlay.addEventListener('click', function () {
                 mobileMenu.classList.remove('max-h-screen');
                 mobileMenu.classList.add('max-h-0');
+                mobileMenu.style.maxHeight = '';
                 menuIcon.classList.remove('hidden');
                 closeIcon.classList.add('hidden');
                 overlay.classList.add('hidden');
@@ -1604,24 +1636,92 @@
             });
         }
 
-        // Mobile Services Dropdown Toggle
-        if (mobileServicesBtn) {
+        // Mobile Services Dropdown Toggle — improved animation and stability
+        if (mobileServicesBtn && mobileServicesDropdown) {
             mobileServicesBtn.addEventListener('click', function () {
-                mobileServicesDropdown.classList.toggle('hidden');
-                mobileServicesArrow.classList.toggle('rotate-180');
+                const isOpen = mobileServicesDropdown.classList.contains('open');
+
+                if (isOpen) {
+                    // close
+                    mobileServicesDropdown.classList.remove('open');
+                    mobileServicesDropdown.style.maxHeight = '';
+                    mobileServicesDropdown.classList.add('hidden');
+                    mobileServicesArrow.classList.remove('rotate-180');
+                } else {
+                    // open: measure content height then set maxHeight for transition
+                    mobileServicesDropdown.classList.remove('hidden');
+                    // allow DOM to update
+                    requestAnimationFrame(() => {
+                        const contentHeight = mobileServicesDropdown.scrollHeight;
+                        mobileServicesDropdown.style.maxHeight = contentHeight + 'px';
+                        mobileServicesDropdown.classList.add('open');
+                        mobileServicesArrow.classList.add('rotate-180');
+                    });
+                }
             });
         }
 
         // Desktop Services Dropdown
         const servicesDropdown = document.querySelector('.services-dropdown');
-        const dropdownContent = servicesDropdown.querySelector('.dropdown-content');
+        const dropdownContent = servicesDropdown ? servicesDropdown.querySelector('.dropdown-content') : null;
 
-        servicesDropdown.addEventListener('mouseenter', function () {
-            dropdownContent.classList.remove('hidden');
-        });
+        // Detect if device supports hover; if not, use click toggles (avoids flicker on touch)
+        const supportsHover = window.matchMedia && window.matchMedia('(hover: hover)').matches;
 
-        servicesDropdown.addEventListener('mouseleave', function () {
-            dropdownContent.classList.add('hidden');
+        if (servicesDropdown && dropdownContent) {
+            const servicesDropdownBtn = servicesDropdown.querySelector('button');
+
+            if (supportsHover) {
+                // desktop: hover behavior with small hide delay to prevent flicker
+                let servicesHideTimer = null;
+
+                servicesDropdown.addEventListener('mouseenter', function () {
+                    if (servicesHideTimer) {
+                        clearTimeout(servicesHideTimer);
+                        servicesHideTimer = null;
+                    }
+                    dropdownContent.classList.remove('hidden');
+                });
+
+                servicesDropdown.addEventListener('mouseleave', function () {
+                    // delay hiding a little to avoid accidental flicker
+                    servicesHideTimer = setTimeout(() => {
+                        dropdownContent.classList.add('hidden');
+                        servicesHideTimer = null;
+                    }, 220);
+                });
+            } else {
+                // touch/tablet: use click toggle to avoid hover flicker
+                if (servicesDropdownBtn) {
+                    servicesDropdownBtn.addEventListener('click', function (e) {
+                        e.stopPropagation();
+                        dropdownContent.classList.toggle('hidden');
+                    });
+
+                    // Close when clicking outside
+                    document.addEventListener('click', function (ev) {
+                        if (!servicesDropdown.contains(ev.target)) {
+                            dropdownContent.classList.add('hidden');
+                        }
+                    });
+                }
+            }
+        }
+
+        // Keep mobile menu and mobile services dropdown sizes correct on window resize
+        window.addEventListener('resize', function () {
+            const headerEl = document.getElementById('header');
+            const headerHeight = headerEl ? headerEl.getBoundingClientRect().height : 0;
+
+            // If mobile menu is open, recompute available height
+            if (mobileMenu && mobileMenu.classList.contains('max-h-screen')) {
+                mobileMenu.style.maxHeight = (window.innerHeight - headerHeight) + 'px';
+            }
+
+            // If mobile services dropdown is open, refresh its maxHeight
+            if (mobileServicesDropdown && mobileServicesDropdown.classList.contains('open')) {
+                mobileServicesDropdown.style.maxHeight = mobileServicesDropdown.scrollHeight + 'px';
+            }
         });
 
         // Smooth Scrolling

@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Propic Studio - Professional Photo Editing</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            color: white;
+            overflow-x: hidden;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media (min-width: 768px) {
+            .md\:flex {
+                display: flex;
+            }
+
+            .md\:hidden {
+                display: none;
+            }
+        }
+
+        /* --- Custom Styles from User Provided Code --- */
+        .dropdown-menu {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .dropdown-menu.open {
+            max-height: 600px;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: .5;
+            }
+        }
+
+        .animate-pulse {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        @keyframes bounce {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        .animate-bounce {
+            animation: bounce 2s infinite;
+        }
+
+        .bg-clip-text {
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            color: transparent;
+        }
+
+        .bg-gradient-text {
+            background: linear-gradient(to right, #eab308, #e9d5ff, #7f1d1d);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            color: transparent;
+        }
+
+        .hero {
+            min-height: 100vh;
+        }
+
+        /* Mobile header overlap fix */
+        @media (max-width: 767px) {
+            #home.hero {
+                padding-top: 160px !important;
+                /* Increased padding for mobile header */
+                align-items: flex-start !important;
+                justify-content: flex-start !important;
+            }
+
+            .hero .container {
+                margin-top: 20px !important;
+            }
+
+            .hero h1 {
+                font-size: 2.25rem !important;
+                line-height: 1.1 !important;
+            }
+        }
+
+        /* Extra small mobile devices */
+        @media (max-width: 480px) {
+            #home.hero {
+                padding-top: 180px !important;
+            }
+        }
+
+        @media (min-width: 768px) {
+            .hero {
+                padding-top: 0;
+                align-items: center;
+                justify-content: center;
+            }
+        }
+
+        /* Ensure mobile layout works properly */
+        @media (max-width: 767px) {
+            .hero.pt-32 {
+                padding-top: 160px !important;
+            }
+        }
+
+        /* Background Slideshow CSS */
+        .bg-slideshow {
+            position: absolute;
+            inset: 0;
+            background-size: cover;
+            background-position: center;
+            transition: opacity 1s ease-in-out, transform 6s ease-in-out;
+        }
+
+        .bg-slideshow.active {
+            opacity: 1;
+            transform: scale(1.05);
+        }
+
+        .bg-slideshow.inactive {
+            opacity: 0;
+            transform: scale(1);
+        }
+        
+        /* Other utility classes */
+        .gradient-text {
+            background: linear-gradient(to right, #c084fc, #f9a8d4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .connection-line {
+            background: linear-gradient(to right, #a855f7, #ec4899);
+            opacity: 0.3;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0px);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        .hover-float:hover {
+            animation: float 2s ease-in-out infinite;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-fadeInUp {
+            animation: fadeInUp 0.8s ease-out forwards;
+        }
+
+        .card-item {
+            opacity: 0;
+        }
+
+        .card-item.visible {
+            animation: fadeInUp 0.8s ease-out forwards;
+        }
+
+        @keyframes scaleUp {
+            0% {
+                transform: scale(1);
+            }
+
+            100% {
+                transform: scale(1.05);
+            }
+        }
+
+        .hover-scale:hover {
+            animation: scaleUp 0.3s forwards;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header id="header" class="fixed top-0 w-full z-50 bg-black/80 backdrop-blur-md transition-all duration-500">
+        <nav class="container mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+
+                <div class="flex items-center space-x-4 cursor-pointer group">
+                    <!-- <div
+                        class="h-24 w-16 bg-gradient-to-tr from-purple-500 to-pink-500 rounded-xl flex items-center justify-center text-white font-bold text-2xl transform transition-transform duration-300 hover:scale-110">
+                        P
+                    </div> -->
+                    <span
+                        class="text-3xl font-extrabold tracking-wide bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent drop-shadow-lg group-hover:scale-105 transition-transform duration-300"
+                        style="-webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                        PROPICINFO
+                    </span>
+                </div>
+
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#home"
+                        class="nav-link text-white/80 hover:text-white transition-all duration-300 hover:scale-105 relative group">
+                        Home
+                        <span
+                            class="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-400 to-pink-400 transition-all duration-300 group-hover:w-full"></span>
+                    </a>
+
+                    <a href="#about"
+                        class="nav-link text-white/80 hover:text-white transition-all duration-300 hover:scale-105 relative group">
+                        About
+                        <span
+                            class="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-400 to-pink-400 transition-all duration-300 group-hover:w-full"></span>
+                    </a>
+
+                    <a href="#process"
+                        class="nav-link text-white/80 hover:text-white transition-all duration-300 hover:scale-105 relative group">
+                        Process
+                        <span
+                            class="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-400 to-pink-400 transition-all duration-300 group-hover:w-full"></span>
+                    </a>
+
+                    <a href="#contact"
+                        class="nav-link text-white/80 hover:text-white transition-all duration-300 hover:scale-105 relative group">
+                        Contact
+                        <span
+                            class="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-400 to-pink-400 transition-all duration-300 group-hover:w-full"></span>
+                    </a>
+
+                    <div class="relative services-dropdown">
+                        <button
+                            class="text-white/80 hover:text-white transition-all duration-300 hover:scale-105 relative group flex items-center space-x-1">
+                            <span>Services</span>
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                            <span
+                                class="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-400 to-pink-400 transition-all duration-300 group-hover:w-full"></span>
+                        </button>
+
+                        <div
+                            class="dropdown-content hidden absolute top-full left-0 mt-2 w-64 bg-black/95 backdrop-blur-md border border-white/20 rounded-lg shadow-2xl">
+                            <div class="py-2">
+                                <a href="pages/ArialPhotosService.html"
+                                    class="block px-4 py-2 text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200">Arial
+                                    Photos Service</a>
+                                <a href="pages/DayToDuskService.html"
+                                    class="block px-4 py-2 text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200">Day
+                                    To Dusk Service</a>
+                                <a href="pages/FlashAmbientService.html"
+                                    class="block px-4 py-2 text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200">Flash
+                                    Ambient Service</a>
+                                <a href="pages/HDRService.html"
+                                    class="block px-4 py-2 text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200">HDR
+                                    Service</a>
+                                <a href="pages/kmnkkn.html"
+                                    class="block px-4 py-2 text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200">Kmnkkn</a>
+                                <a href="pages/LandEnhancementService.html"
+                                    class="block px-4 py-2 text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200">Land
+                                    Enhancement Service</a>
+                                <a href="pages/NaturalEditService.html"
+                                    class="block px-4 py-2 text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200">Natural
+                                    Edit Service</a>
+                                <a href="pages/OutdoorService.html"
+                                    class="block px-4 py-2 text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200">Outdoor
+                                    Service</a>
+                                <a href="pages/PatchRemovalsService.html"
+                                    class="block px-4 py-2 text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200">Patch
+                                    Removals Service</a>
+                                <a href="pages/PhotosFromVideosService.html"
+                                    class="block px-4 py-2 text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200">Photos
+                                    From Videos Service</a>
+                                <a href="pages/PortraitService.html"
+                                    class="block px-4 py-2 text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200">Portrait
+                                    Service</a>
+                                <a href="pages/RealTwilightService.html"
+                                    class="block px-4 py-2 text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200">Real
+                                    Twilight Service</a>
+                                <a href="pages/Service360.html"
+                                    class="block px-4 py-2 text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200">Service
+                                    360</a>
+                                <a href="pages/SingleImagesService.html"
+                                    class="block px-4 py-2 text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200">Single
+                                    Images Service</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button
+                        class="bg-gradient-to-r from-purple-500 to-pink-500 px-6 py-2 rounded-full text-white font-medium hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-purple-500/25">
+                        Get Started
+                    </button>
+                </div>
+
+                <button id="mobile-menu-btn" class="md:hidden text-white hover:text-purple-400 transition-colors">
+                    <svg id="menu-icon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                    <svg id="close-icon" class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                        </path>
+                    </svg>
+                </button>
+            </div>
+
+            <div id="mobile-menu"
+                class="hidden md:hidden absolute top-full left-0 w-full bg-black/95 backdrop-blur-md border-b border-white/10">
+                <div class="container mx-auto px-6 py-6 space-y-4">
+                    <a href="#home"
+                        class="block text-white/80 hover:text-white transition-colors w-full text-left py-2">Home</a>
+                    <a href="#about"
+                        class="block text-white/80 hover:text-white transition-colors w-full text-left py-2">About</a>
+                    <a href="#process"
+                        class="block text-white/80 hover:text-white transition-colors w-full text-left py-2">Process</a>
+                    <a href="#contact"
+                        class="block text-white/80 hover:text-white transition-colors w-full text-left py-2">Contact</a>
+
+                    <div class="border-t border-white/20 pt-4">
+                        <div class="text-white/60 text-sm font-medium mb-2">Services</div>
+                        <a href="pages/ArialPhotosService.html"
+                            class="block text-white/80 hover:text-white transition-colors w-full text-left py-1 pl-4">Arial
+                            Photos Service</a>
+                        <a href="pages/DayToDuskService.html"
+                            class="block text-white/80 hover:text-white transition-colors w-full text-left py-1 pl-4">Day
+                            To Dusk Service</a>
+                        <a href="pages/FlashAmbientService.html"
+                            class="block text-white/80 hover:text-white transition-colors w-full text-left py-1 pl-4">Flash
+                            Ambient Service</a>
+                        <a href="pages/HDRService.html"
+                            class="block text-white/80 hover:text-white transition-colors w-full text-left py-1 pl-4">HDR
+                            Service</a>
+                        <a href="pages/kmnkkn.html"
+                            class="block text-white/80 hover:text-white transition-colors w-full text-left py-1 pl-4">Kmnkkn</a>
+                        <a href="pages/LandEnhancementService.html"
+                            class="block text-white/80 hover:text-white transition-colors w-full text-left py-1 pl-4">Land
+                            Enhancement Service</a>
+                        <a href="pages/NaturalEditService.html"
+                            class="block text-white/80 hover:text-white transition-colors w-full text-left py-1 pl-4">Natural
+                            Edit Service</a>
+                        <a href="pages/OutdoorService.html"
+                            class="block text-white/80 hover:text-white transition-colors w-full text-left py-1 pl-4">Outdoor
+                            Service</a>
+                        <a href="pages/PatchRemovalsService.html"
+                            class="block text-white/80 hover:text-white transition-colors w-full text-left py-1 pl-4">Patch
+                            Removals Service</a>
+                        <a href="pages/PhotosFromVideosService.html"
+                            class="block text-white/80 hover:text-white transition-colors w-full text-left py-1 pl-4">Photos
+                            From Videos Service</a>
+                        <a href="pages/PortraitService.html"
+                            class="block text-white/80 hover:text-white transition-colors w-full text-left py-1 pl-4">Portrait
+                            Service</a>
+                        <a href="pages/RealTwilightService.html"
+                            class="block text-white/80 hover:text-white transition-colors w-full text-left py-1 pl-4">Real
+                            Twilight Service</a>
+                        <a href="pages/Service360.html"
+                            class="block text-white/80 hover:text-white transition-colors w-full text-left py-1 pl-4">Service
+                            360</a>
+                        <a href="pages/SingleImagesService.html"
+                            class="block text-white/80 hover:text-white transition-colors w-full text-left py-1 pl-4">Single
+                            Images Service</a>
+                    </div>
+
+                    <button
+                        class="bg-gradient-to-r from-purple-500 to-pink-500 px-6 py-3 rounded-full text-white font-medium w-full">
+                        Get Started
+                    </button>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section id="home" class="relative min-h-screen flex items-center justify-center overflow-hidden text-white hero">
+            <div class="absolute inset-0 z-0" id="bg-container">
+                </div>
+            <div class="absolute inset-0 bg-gradient-to-b from-black/70 via-black/30 to-black/70 z-[1]"></div>
+
+            
+
+            <div class="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center">
+                <div
+                    class="w-6 h-10 border-2 border-white/40 rounded-full flex justify-center relative overflow-hidden">
+                    <div class="w-1 h-3 bg-gradient-to-b from-purple-400 to-pink-400 rounded-full mt-1 animate-bounce">
+                    </div>
+                </div>
+                <div class="text-white/60 text-xs mt-2">Scroll to explore</div>
+                <svg class="w-4 h-4 text-white/40 mt-1 animate-pulse" fill="none" stroke="currentColor"
+                    viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122">
+                    </path>
+                </svg>
+            </div>
+        </section>
+
+       
+
+    </main>
+
+    <script>
+        // --- 1. Header/Navigation JavaScript ---
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const menuIcon = document.getElementById('menu-icon');
+        const closeIcon = document.getElementById('close-icon');
+
+        mobileMenuBtn.addEventListener('click', function () {
+            mobileMenu.classList.toggle('hidden');
+            menuIcon.classList.toggle('hidden');
+            closeIcon.classList.toggle('hidden');
+        });
+
+        // Close mobile menu when clicking a link
+        const allLinks = document.querySelectorAll('a[href^="#"], #mobile-menu a');
+        allLinks.forEach(link => {
+            link.addEventListener('click', function (e) {
+                // Smooth scroll functionality (optional, but good practice)
+                const targetId = this.getAttribute('href');
+                if (targetId.startsWith('#')) {
+                    e.preventDefault();
+                    const target = document.querySelector(targetId);
+                    if (target) {
+                        target.scrollIntoView({ behavior: 'smooth' });
+                    }
+                }
+                
+                // Close menu after click
+                mobileMenu.classList.add('hidden');
+                menuIcon.classList.remove('hidden');
+                closeIcon.classList.add('hidden');
+            });
+        });
+
+        // Desktop Services Dropdown (Mouse hover)
+        const servicesDropdown = document.querySelector('.services-dropdown');
+        const dropdownContent = servicesDropdown ? servicesDropdown.querySelector('.dropdown-content') : null;
+
+        if (servicesDropdown && dropdownContent) {
+            servicesDropdown.addEventListener('mouseenter', function () {
+                dropdownContent.classList.remove('hidden');
+            });
+
+            servicesDropdown.addEventListener('mouseleave', function () {
+                dropdownContent.classList.add('hidden');
+            });
+        }
+
+
+        // --- 2. Hero Slideshow and Rotating Text JavaScript ---
+
+        // Configuration - Set your image paths and rotation words
+        const words = ['Transform', 'Enhance', 'Perfect', 'Illuminate'];
+        let currentWordIndex = 0;
+
+        // **IMPORTANT:** Replace these placeholder paths with your actual image URLs.
+        const images = {
+            desktop: [
+                './assets/DSC05054.jpg',
+                './assets/DSC06407.jpg',
+                './assets/tiwilight.jpg',
+            ],
+            // Use different images for mobile if needed, or list the same ones
+            mobile: [
+                './assets/tiwilight.jpg',
+                './assets/DSC05048.jpg',
+                './assets/DSC05057.jpg',
+            ]
+        };
+
+        let currentImages = [];
+        let currentBgIndex = 0;
+        const slideshowInterval = 6000; // 6 seconds
+
+        function getImagesForScreenSize() {
+            if (window.innerWidth >= 768) {
+                return images.desktop;
+            } else {
+                // Fallback to desktop images if mobile array is empty
+                return images.mobile.length > 0 ? images.mobile : images.desktop;
+            }
+        }
+
+        function initBackgrounds() {
+            const container = document.getElementById('bg-container');
+            if (!container) return;
+            container.innerHTML = ''; // Clear previous images
+            currentImages = getImagesForScreenSize();
+
+            if (currentImages.length === 0) {
+                console.error("No images configured for the current screen size.");
+                return;
+            }
+
+            // Create placeholder divs first so layout doesn't shift
+            currentImages.forEach((src, index) => {
+                const div = document.createElement('div');
+                div.className = 'bg-slideshow inactive';
+                // Keep background-image empty until image loads
+                if (index === 0) div.classList.add('active');
+                container.appendChild(div);
+            });
+
+            // Preload images and assign them when ready
+            const divs = container.querySelectorAll('.bg-slideshow');
+            currentImages.forEach((src, index) => {
+                const img = new Image();
+                img.src = src;
+                img.onload = () => {
+                    // When loaded, set the div background and ensure classes are correct
+                    const target = divs[index];
+                    if (!target) return;
+                    target.style.backgroundImage = `url('${src}')`;
+                    // If this is the first image and it was marked active, ensure opacity is visible
+                    if (index === 0) {
+                        target.classList.add('active');
+                        target.classList.remove('inactive');
+                    }
+                };
+                img.onerror = () => {
+                    console.warn('Failed to load image:', src);
+                };
+            });
+        }
+
+        function rotateWord() {
+            const wordElement = document.getElementById('rotating-word');
+            if (!wordElement) return;
+
+            currentWordIndex = (currentWordIndex + 1) % words.length;
+            wordElement.textContent = words[currentWordIndex];
+        }
+
+        function rotateBackground() {
+            const backgrounds = document.querySelectorAll('.bg-slideshow');
+            if (backgrounds.length <= 1) return;
+
+            // Deactivate current
+            backgrounds[currentBgIndex].classList.remove('active');
+            backgrounds[currentBgIndex].classList.add('inactive');
+
+            // Move to next index
+            currentBgIndex = (currentBgIndex + 1) % backgrounds.length;
+
+            // Activate next
+            backgrounds[currentBgIndex].classList.remove('inactive');
+            backgrounds[currentBgIndex].classList.add('active');
+        }
+
+        // Initialize and start intervals
+        initBackgrounds();
+        setInterval(rotateWord, 3000); // Rotate word every 3 seconds
+        setInterval(rotateBackground, slideshowInterval); // Rotate background every 6 seconds
+
+        // Handle window resize to switch between desktop/mobile images
+        let resizeTimer;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(() => {
+                const newImages = getImagesForScreenSize();
+                if (JSON.stringify(newImages) !== JSON.stringify(currentImages)) {
+                    currentBgIndex = 0;
+                    initBackgrounds();
+                }
+            }, 250);
+        });
+    </script>
+</body>
+
+</html>
